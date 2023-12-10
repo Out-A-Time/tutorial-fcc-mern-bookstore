@@ -1,14 +1,28 @@
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 
 import { PORT, mongoDB_URL } from "./config.js";
 import { Book } from "./db_models/bookModel.js";
+import booksRoute from "./routes/booksRoute.js";
 
 const app = express();
 
 //Middleware for parsing request body
 app.use(express.json());
+
+//Middleware for handling CORS policy
+//Option 1: Allow all origins with default of CORS (*)
+app.use(cors());
+//Option 2: Allow custom origins (better option)
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 
 // HTTP methods use for getting a resoursce from server
 app.get("/", (request, response) => {
@@ -16,63 +30,8 @@ app.get("/", (request, response) => {
   return response.status(234).send("Welcome to MERN Stack tutorial!");
 });
 
-//ROUTES
-// Post method
-app.post("/books", async (request, response) => {
-  try {
-    if (
-      !request.body.title ||
-      !request.body.author ||
-      !request.body.publishYear
-    ) {
-      return response.status(400).send({
-        message: "Send all required fields: title, author, publisher",
-      });
-    }
-
-    const newBook = {
-      title: request.body.title,
-      author: request.body.author,
-      publishYear: request.body.publishYear,
-    };
-
-    const book = await Book.create(newBook);
-
-    return response.status(201).send(book);
-  } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message });
-  }
-});
-
-//Get all method
-app.get("/books", async (request, response) => {
-  try {
-    const books = await Book.find({});
-    return response.status(200).json({
-      count: books.length,
-      data: books,
-    });
-  } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message });
-  }
-});
-
-//Get by id method
-app.get("/books/:id", async (request, response) => {
-  try {
-    // console.log("request", request.params);
-    const { id } = request.params;
-    const book = await Book.findById(id);
-    return response.status(200).json(book);
-  } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message });
-  }
-});
-
-//Update by id method
+//Routes
+app.use("/books", booksRoute);
 
 mongoose
   .connect(mongoDB_URL)
