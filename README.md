@@ -2,7 +2,7 @@
 
 Tutorial by FreeCodeCamp on YT: https://www.youtube.com/watch?v=-42K44A1oMA
 
-#Simple Bookstore
+#Simple Bookstore App with CRUD operations, Modal pop up and 'snackbar' notification.
 
 ##MERN Stack
 MongoDB with Mongoose,
